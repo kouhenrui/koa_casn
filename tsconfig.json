@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["jest"], // 👈 告诉 TypeScript 加载 jest 类型
+    // 👇 关键点：不要开启新版装饰器语法
+    "useDefineForClassFields": false,
+    "sourceMap": true
+  },
+  "include": ["src","test"],
+  "exclude": ["node_modules", "dist"]
+}
