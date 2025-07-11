@@ -73,8 +73,8 @@ export class RedisService {
       this.isConnected = true;
       this.reconnectAttempts = 0;
       logger().info({ 
-        event: "redisConnected", 
-        message: "Redis连接成功 🚀" 
+        event: "redis", 
+        message: "Redis连接成功 🔥🔥🔥" 
       });
     });
 

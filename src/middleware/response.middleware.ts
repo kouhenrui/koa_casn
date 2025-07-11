@@ -17,10 +17,11 @@ export async function responseFormatter(ctx: Context, next: Next) {
       // 如果已经有响应体，自动包装成统一格式
       if (ctx.body !== undefined && ctx.status === 200) {
         ctx.body = {
-          code: 0,
-          message: "success",
-          data: ctx.body,
-          success: true,
+          // code: 0,
+          // message: "success",
+          // data: ctx.body,
+          // success: true,
+          status:0,message:"success"
         };
       } else {
         logger().warn({

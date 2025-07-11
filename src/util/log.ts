@@ -13,7 +13,7 @@ export const initLogger = (option?: LoggerOptions) => {
   if (!loggerService) loggerService = new loggerManager(option);
   loggerService.info({
     event: "logger",
-    message: "logger init success🚀🚀🚀",
+    message: "logger init success 📔📔📔",     
   })
   
 };

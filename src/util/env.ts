@@ -13,7 +13,9 @@ loadDotenv({ path: envPath });
 logger().info({
   event: `环境变量加载成功: ${env}`,
 });
-dotenv.config();
+dotenv.config({
+  debug:false
+});
 export const ServerConfig = {
   // Redis
   redis: {

@@ -6,8 +6,8 @@ import { PrismaClient } from "@prisma/client";
 
 export  function authorize(action: string, resource: string) {
   return async (ctx: Context, next: Next) => {
-    const userId = ctx.headers["x-user-id"]; // 示例中用 header 模拟登录用户
-    if (!userId) return ctx.throw(401, "Unauthorized");
+    // const userId = ctx.headers["x-user-id"]; // 示例中用 header 模拟登录用户
+    // if (!userId) return ctx.throw(401, "Unauthorized");
 
     // const user = await prisma.user.findUnique({
     //   where: { id: userId },

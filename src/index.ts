@@ -4,7 +4,6 @@ import bodyParser from "koa-bodyparser";
 import cors from "@koa/cors";
 import helmet from "koa-helmet";
 import userRoutes from "./routes/router";
-import { authorize } from "./middleware/auth";
 import { responseFormatter } from "./middleware/response.middleware";
 import { LoggerMiddleware } from "./middleware/logger.middleware";
 import { initRedis } from "./util/redis";
@@ -12,6 +11,8 @@ import { logger } from "./util/log";
 import { CasbinService } from "./util/casbin";
 import { ServerConfig } from "./util/env";
 import { initPg } from "./util/orm";
+import { EtcdService } from "./util/etcd";
+import { getLocalIp, getPublicIp } from "./util/crypto";
 
 const app = new Koa();
 // 初始化服务
@@ -20,6 +21,7 @@ const initializeServices = async () => {
     // 初始化连接
     await initPg();
     await initRedis();
+    await EtcdService.getInstance('http://127.0.0.1:2379');
     await CasbinService.getInstance();
     logger().info({ event: "servicesInitialized", message: "所有服务初始化完成" });
   } catch (error) {
@@ -73,13 +75,17 @@ const startServer = async () => {
   await initializeServices();
   
   const port = ServerConfig.PORT || '3000';
-  const server = app.listen(port, () => {
+  const server = app.listen(port, async() => {
     logger().info({
       event: "serverStarted",
-      message: `服务器运行在 http://localhost:${port} 🚀`,
-      data: {
+        data: {
         environment: ServerConfig.NODE_ENV
-      }
+      },
+      message: `server running at 
+      - Local: http://localhost:${port} 🚀
+      - LAN: http://${getLocalIp()}:${port} 🚀 
+      - Public: http://${await getPublicIp()}:${port} 🚀\n`,
+    
     });
   });
 

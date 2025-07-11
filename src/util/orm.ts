@@ -134,13 +134,13 @@ export const initPg = async () => {
     await DefaultPGDataSource.initialize();
     // await LogDataSource.initialize();
     logger().info({
-      event: "pgConnected",
-      message: "🟢 pg connected success 🐘🐘🐘",
+      event: "postgres",
+      message: "pg connected success 🐘🐘🐘",
     });
   } catch (err: any) {
     logger().error({
       event: "pg connection error ❌",
-      error: err.message,
+      error: err,
     });
     process.exit(1);
   }
