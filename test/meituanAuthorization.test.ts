@@ -6,10 +6,10 @@ import {
 
 describe('Meituan Authorization', () => {
 
-  it("should return ok", async () => {
-    const a = "success";
-    expect(a).toBe("success");
-  });
+  // it("should return ok", async () => {
+  //   const a = "success";
+  //   expect(a).toBe("success");
+  // });
   // it('should generate a valid GMT date', () => {
   //   const date = new Date();
   //   const gmtDate = date.toUTCString(); // Expected format: "Tue, 25 Jun 2024 08:50:00 GMT"

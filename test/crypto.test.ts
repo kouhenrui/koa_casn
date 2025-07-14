@@ -1,43 +1,43 @@
 import { hashPassword, comparePassword, generateToken, verifyToken,generateRsa, encryptRsa, decryptRsa, replaceSensitiveInfo } from "../src/util/crypto";
 import { sensitive } from "../src/util/key";
 
-// describe('bcrypt hash Tests', () => {
-//   it('should encrypt and decrypt data', async() => {
-//     const encryptedData = await hashPassword('123456');
-//     const decryptedData = await comparePassword( "123456",encryptedData);
-//     expect(decryptedData).toBe(true);
-//   });
-// });
+describe('bcrypt hash Tests', () => {
+  it('should encrypt and decrypt data', async() => {
+    const encryptedData = await hashPassword('123456');
+    const decryptedData = await comparePassword( "123456",encryptedData);
+    expect(decryptedData).toBe(true);
+  });
+});
 
 
-// describe('RSA Crypto Tests', () => {
+describe('RSA Crypto Tests', () => {
 
-  // it('should generate rsa key pair', () => {
-  //   const { publicKey, privateKey } = generateRsa();
-  //   console.log("Public Key:", publicKey);
-  //   console.log("Private Key:", privateKey);
-  // });
-  // it('should encrypt and decrypt data', () => {
-  //   const data = {"param":"123456"};
-  //   const { publicKey, privateKey } = generateRsa();
-  //   const encryptedData = encryptRsa(JSON.stringify(data), publicKey);
-  //   console.log("Encrypted Data:", encryptedData);
-  //   const decryptedData = decryptRsa(encryptedData.toString(), privateKey);
-  //   console.log("Decrypted Data:", decryptedData.toString());
-  //   expect(decryptedData.toString()).toBe(JSON.stringify(data));
-  // });
-// });
+  it('should generate rsa key pair', () => {
+    const { publicKey, privateKey } = generateRsa();
+    console.log("Public Key:", publicKey);
+    console.log("Private Key:", privateKey);
+  });
+  it('should encrypt and decrypt data', () => {
+    const data = {"param":"123456"};
+    const { publicKey, privateKey } = generateRsa();
+    const encryptedData = encryptRsa(JSON.stringify(data), publicKey);
+    console.log("Encrypted Data:", encryptedData);
+    const decryptedData = decryptRsa(encryptedData.toString(), privateKey);
+    console.log("Decrypted Data:", decryptedData.toString());
+    expect(decryptedData.toString()).toBe(JSON.stringify(data));
+  });
+});
 
 
-// describe('jwt Tests', () => {
-//   it('should generate jwt', () => {
-//     const payload = { id: 1, role: "admin" };
-//     const token = generateToken(payload);
-//     const decoded = verifyToken(token.token);
-//     expect(decoded.id).toBe(payload.id);
-//     expect(decoded.role).toBe(payload.role);
-//   });
-// });
+describe('jwt Tests', () => {
+  it('should generate jwt', () => {
+    const payload = { id: 1, role: "admin" };
+    const token = generateToken(payload);
+    const decoded = verifyToken(token.token);
+    expect(decoded.id).toBe(payload.id);
+    expect(decoded.role).toBe(payload.role);
+  });
+});
 
 
 describe('replaceSensitiveInfo Tests', () => {
@@ -80,11 +80,3 @@ describe('replaceSensitiveInfo Tests', () => {
   
 
 });
-
-// describe('dayjs Tests', () => {
-//   it('should format date', () => {
-//     const date = new Date();
-//     const formattedDate = formatDate(date);
-//     console.log("Formatted Date:", formattedDate);
-//   });
-// });

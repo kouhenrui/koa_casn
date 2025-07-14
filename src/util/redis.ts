@@ -488,7 +488,8 @@ export const initRedis = async (): Promise<RedisService> => {
  */
 export const getRedisService = (): RedisService => {
   if (!redisService) {
-    throw new Error("Redis服务未初始化，请先调用 initRedis()");
+    initRedis()
+    // throw new Error("Redis服务未初始化，请先调用 initRedis()");
   }
   return redisService;
 };

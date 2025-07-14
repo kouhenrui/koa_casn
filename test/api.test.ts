@@ -4,12 +4,12 @@ import MWSService from "../src/meituan/api";
 describe('MWSService Tests', () => {
     let authorization:string;
     let accessToken:string;
-    it("return 房东常量信息", async () => {
-      const accessToken = "40FCA90D065748DCA3B6BFA0B493AE07";
-      const res = await MWSService.getConstantsMWS(accessToken);
+    // it("return 房东常量信息", async () => {
+    //   const accessToken = "40FCA90D065748DCA3B6BFA0B493AE07";
+    //   const res = await MWSService.getConstantsMWS(accessToken);
 
-      console.log("房东常量信息:", res);
-    });
+    //   console.log("房东常量信息:", res);
+    // });
 //   it('should return a valid authorization header', async () => {
 //     try {
 //         const provinceRes = await MWSService.getProvinceCityMWS();
