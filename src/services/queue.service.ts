@@ -49,7 +49,7 @@ export class QueueService {
 
   constructor(options: QueueOptions) {
     this.redis = options.redis || getRedisService().getClient();
-    this.name = options.name;
+    this.name = options.name||'default queue';
     this.maxAttempts = options.maxAttempts || 3;
     this.defaultPriority = options.defaultPriority || 0;
     this.retryDelay = options.retryDelay || 5000;
@@ -570,7 +570,21 @@ export class QueueService {
    * 生成任务ID
    */
   private generateJobId(): string {
-    return `${this.name}:${Date.now()}:${Math.random().toString(36).substr(2, 9)}`;
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).slice(2, 11);
+    const uuid = crypto.randomUUID ? crypto.randomUUID() : this.generateUUID();
+    return `${this.name}:${timestamp}:${random}:${uuid.split('-')[0]}`;
+  }
+
+  /**
+   * 生成UUID（兼容性）
+   */
+  private generateUUID(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
   }
 
   /**
