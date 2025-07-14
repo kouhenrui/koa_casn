@@ -1,26 +1,28 @@
 import { Etcd3, Lease } from "etcd3";
+import { ServerConfig } from "./env";
 
 export class EtcdService {
   private static instance: EtcdService;
   private etcdClient: Etcd3;
   private leases: Map<string, Lease> = new Map();
 
-  constructor(private readonly etcdUrl: string) {
+  constructor() {
     this.etcdClient = new Etcd3({
-      hosts: etcdUrl,
+      hosts: ServerConfig.ETCD_URL,
     });
   }
 
-  public static async getInstance(etcdUrl: string): Promise<EtcdService> {
+  public static async getInstance(): Promise<EtcdService> {
     if (!EtcdService.instance) {
-      EtcdService.instance = new EtcdService(etcdUrl);
+      EtcdService.instance = new EtcdService();
     }
     return EtcdService.instance;
   }
 
   async get(key: string): Promise<string | null> {
     const res = await this.etcdClient.get(key);
-    return res.toString() || null;
+    if(!res)return null;
+    return res.toString();
   }
 
   async set(key: string, value: string): Promise<void> {

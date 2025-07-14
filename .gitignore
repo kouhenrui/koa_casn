@@ -9,6 +9,9 @@ lerna-debug.log*
 
 # 忽略美团文件夹
 src/meituan
+
+# 忽略配置文件
+*.env
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 

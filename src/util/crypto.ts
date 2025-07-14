@@ -7,6 +7,7 @@ import { CaptchaType, sensitive } from "./key";
 import crypto from "crypto";
 import axios from "axios";
 import os from "os";
+import { ServerConfig } from "./env";
 const SALT_ROUNDS = 10;
 
 
@@ -164,19 +165,13 @@ const replaceSensitiveInfo = (str: string, type: sensitive): string => {
   }
 };
 
-const whiteList = [
-  "/api/v1/auth/login",
-  "/api/v1/auth/register",
-  "/api/v1/auth/logout",
-  "/api/v1/auth/refresh",
-];
 /**
  * 白名单正则表达式
  * @param path - 请求路径
  * @returns 是否在白名单中
  */
 const whiteListRegex = async (path: string): Promise<boolean> => {
-  const regexesWhiteList = whiteList.map((paths) => {
+  const regexesWhiteList = ServerConfig.jwt.whiteList.map((paths) => {
     const escaped = paths.replace(/\//g, "\\/").replace(/\*/g, ".*");
     return new RegExp(`^${escaped}$`);
   });

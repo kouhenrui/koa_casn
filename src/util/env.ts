@@ -4,14 +4,14 @@ import { logger } from "./log";
 import { resolve } from "path";
 
 // 获取环境变量
-const env = process.env.NODE_ENV || "local";
+const env = process.env.NODE_ENV || "development";
 
 // 加载对应的 .env 文件
-const envPath = resolve(__dirname, `../../env/.${env}.env`);
+const envPath = resolve(__dirname, `../../.env`);
 loadDotenv({ path: envPath });
 
 logger().info({
-  event: `环境变量加载成功: ${env}`,
+  event: `加载的配置环境`,message:`${env}`,
 });
 dotenv.config({
   debug:false
@@ -128,7 +128,7 @@ export const ServerConfig = {
   SOLANA_RPC_URL: process.env.SOLANA_RPC_URL!,
 
   // PORT
-  PORT: process.env.PORT!,
+  PORT: process.env.PORT || 3000,
 
   // NODE_ENV
   NODE_ENV: process.env.NODE_ENV || "development",
@@ -136,4 +136,6 @@ export const ServerConfig = {
   // MESSAGE_KEY_PREFIX
   MESSAGE_KEY_PREFIX: process.env.MESSAGE_KEY_PREFIX!,
   APIKEY: process.env.API_KEY || "koa-key",
+
+  ETCD_URL: process.env.ETCD_URL || "http://127.0.0.1:2379",
 };

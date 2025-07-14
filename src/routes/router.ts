@@ -1,23 +1,31 @@
 import Router from "koa-router";
 import { accountService } from "../services/account.service";
-import  MWSService  from "../meituan/api";
+import MWSService from "../meituan/api";
 import { casbinMiddleware } from "../middleware/casbin.middleware";
 import { logger } from "../util/log";
 import AESSimple from "../meituan/aesCrypto";
+import { CasbinService } from "../util/casbin";
+import permissionRouter from "./permission";
+import queueRouter from "./queue";
 const router = new Router();
 
-router.get("/users", async (ctx) => {
-  ctx.body = {
-    message: `✅ Hello ${ctx.state.user.name}, you can read users.`,
-  };
-});
-
-router.post('/test/casbin',casbinMiddleware,async(ctx)=>{
-
+router.post('/test/casbin', casbinMiddleware(), async(ctx) => {
   ctx.body = "res"
 })
+
+// 注册权限管理路由
+router.use(permissionRouter.routes());
+router.use(permissionRouter.allowedMethods());
+
+// 注册队列管理路由
+router.use(queueRouter.routes());
+router.use(queueRouter.allowedMethods());
 router.get('/initData',async (ctx)=>{
   const res = await accountService.initData()
+  ctx.body = res
+})
+router.get('/accountRoles',async (ctx)=>{
+  const res = await accountService.getAccountRoles()
   ctx.body = res
 })
 router.get('/',async (ctx) => {
@@ -48,4 +56,10 @@ router.post("/notification",async(ctx)=>{
    logger().info({event:"解密",message:`decrypted是${decrypted}`})
    ctx.body={}
 });
+
+router.get('/policy',async(ctx)=>{
+  const casbinService = await CasbinService.getInstance()
+  const res = await casbinService.getPolicy()
+  ctx.body = res
+})
 export default router;

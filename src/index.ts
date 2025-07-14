@@ -21,7 +21,7 @@ const initializeServices = async () => {
     // 初始化连接
     await initPg();
     await initRedis();
-    await EtcdService.getInstance('http://127.0.0.1:2379');
+    await EtcdService.getInstance();
     await CasbinService.getInstance();
     logger().info({ event: "servicesInitialized", message: "所有服务初始化完成" });
   } catch (error) {
@@ -73,14 +73,10 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 // 启动服务器
 const startServer = async () => {
   await initializeServices();
-  
-  const port = ServerConfig.PORT || '3000';
+  const port = ServerConfig.PORT;
   const server = app.listen(port, async() => {
     logger().info({
       event: "serverStarted",
-        data: {
-        environment: ServerConfig.NODE_ENV
-      },
       message: `server running at 
       - Local: http://localhost:${port} 🚀
       - LAN: http://${getLocalIp()}:${port} 🚀 
@@ -96,7 +92,4 @@ const startServer = async () => {
   });
 };
 
-startServer().catch((error) => {
-  logger().error({ event: "startupError", error: error.message });
-  process.exit(1);
-});
+startServer()
