@@ -34,7 +34,7 @@ router.get(
 // 添加策略
 router.post(
   "/policies",
-  casbinMiddleware({ requireAuth: true }),
+//   casbinMiddleware({ requireAuth: true }),
   requireRole(["admin", "super_admin"]),
   async (ctx) => {
     try {
@@ -83,7 +83,7 @@ router.post(
 // 批量添加策略
 router.post(
   "/policies/batch",
-  casbinMiddleware({ requireAuth: true }),
+//   casbinMiddleware({ requireAuth: true }),
   requireRole(["admin", "super_admin"]),
   async (ctx) => {
     try {
@@ -115,7 +115,7 @@ router.post(
 // 删除策略
 router.delete(
   "/policies",
-  casbinMiddleware({ requireAuth: true }),
+//   casbinMiddleware({ requireAuth: true }),
   requireRole(["admin", "super_admin"]),
   async (ctx) => {
     try {
@@ -164,7 +164,7 @@ router.delete(
 // 获取用户角色
 router.get(
   "/users/:userId/roles",
-  casbinMiddleware({ requireAuth: true }),
+//   casbinMiddleware({ requireAuth: true }),
   requireLevel(20),
   async (ctx) => {
     try {
@@ -197,7 +197,7 @@ router.get(
 // 为用户分配角色
 router.post(
   "/users/:userId/roles",
-  casbinMiddleware({ requireAuth: true }),
+//   casbinMiddleware({ requireAuth: true }),
   requireRole(["admin", "super_admin"]),
   async (ctx) => {
     const { userId } = ctx.params;
@@ -230,7 +230,7 @@ router.post(
 // 移除用户角色
 router.delete(
   "/users/:userId/roles",
-  casbinMiddleware({ requireAuth: true }),
+//   casbinMiddleware({ requireAuth: true }),
   requireRole(["admin", "super_admin"]),
   async (ctx) => {
     try {
@@ -264,7 +264,7 @@ router.delete(
 // 获取角色用户
 router.get(
   "/roles/:role/users",
-  casbinMiddleware({ requireAuth: true }),
+//   casbinMiddleware({ requireAuth: true }),
   requireLevel(20),
   async (ctx) => {
     try {
@@ -294,7 +294,7 @@ router.get(
 // 获取权限统计信息
 router.get(
   "/stats",
-  casbinMiddleware({ requireAuth: true }),
+//   casbinMiddleware({ requireAuth: true }),
   requireRole(["admin", "super_admin"]),
   async (ctx) => {
     try {
@@ -315,7 +315,7 @@ router.get(
 // 清除缓存
 router.post(
   "/cache/clear",
-  casbinMiddleware({ requireAuth: true }),
+//   casbinMiddleware({ requireAuth: true }),
   requireRole(["admin", "super_admin"]),
   async (ctx) => {
     try {

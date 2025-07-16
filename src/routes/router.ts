@@ -62,4 +62,14 @@ router.get('/policy',async(ctx)=>{
   const res = await casbinService.getPolicy()
   ctx.body = res
 })
+
+router.get('/test/i18n',async(ctx)=>{
+   const isAuthorized = false;
+   if (!isAuthorized) {
+     const error = new Error("error.unauthorized");
+     error["status"] = 401;
+     throw error;
+   }
+  ctx.body = "success";
+})
 export default router;

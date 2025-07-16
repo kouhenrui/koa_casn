@@ -13,7 +13,8 @@ import { ServerConfig } from "./util/env";
 import { initPg } from "./util/orm";
 import { EtcdService } from "./util/etcd";
 import { getLocalIp, getPublicIp } from "./util/crypto";
-
+import { i18nMiddleware, localeSwitchMiddleware, localeInfoMiddleware } from "./middleware/i18n.middleware";
+import { initI18n } from "./util/i18n-init";
 const app = new Koa();
 // 初始化服务
 const initializeServices = async () => {
@@ -23,6 +24,7 @@ const initializeServices = async () => {
     await initRedis();
     await EtcdService.getInstance();
     await CasbinService.getInstance();
+    await initI18n();
     logger().info({ event: "servicesInitialized", message: "所有服务初始化完成" });
   } catch (error) {
     logger().error({ event: "serviceInitError", error: error });
@@ -39,6 +41,10 @@ app.use(bodyParser({
   formLimit: '10mb',
   textLimit: '10mb',
 }));
+// 国际化中间件
+app.use(i18nMiddleware());
+app.use(localeSwitchMiddleware());
+app.use(localeInfoMiddleware());
 app.use(LoggerMiddleware); // 日志中间件
 app.use(responseFormatter); // 响应格式化
 // app.use(authorize("read", "user")); // 权限验证

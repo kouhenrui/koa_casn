@@ -101,9 +101,11 @@ export class QueueService {
         await this.redis.zadd(queueKey, job.priority, jobId);
       }
 
+      // 使用i18n翻译
+      const { t } = await import("../util/i18n");
       logger().info({
         event: "jobAdded",
-        message: "Job added to queue",
+        message: t("queue.job_added"),
         data: {
           queueName: this.name,
           jobId,

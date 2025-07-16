@@ -2,6 +2,7 @@ import Router from "koa-router";
 import { QueueManager, QueueService } from "../services/queue.service";
 import { logger } from "../util/log";
 import { CustomError } from "../util/error";
+import { t } from "../util/i18n";
 
 const router = new Router({ prefix: "/api/queue" });
 const queueManager = QueueManager.getInstance();
@@ -25,7 +26,7 @@ router.post("/create", async (ctx) => {
 
     ctx.body = {
       success: true,
-      message: "Queue created successfully",
+      message: t("queue.queue_created"),
       data: { name, maxAttempts, defaultPriority, retryDelay, concurrency }
     };
   } catch (error) {

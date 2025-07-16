@@ -16,7 +16,30 @@
 
 ## 快速开始
 
-### 1. 创建队列
+### 方式一：使用队列工厂（推荐）
+
+```typescript
+import { QueueFactory } from "../services/queue-factory.service";
+
+const queueFactory = QueueFactory.getInstance();
+
+// 创建邮件队列
+const emailQueue = queueFactory.createEmailQueue();
+
+// 创建短信队列
+const smsQueue = queueFactory.createSMSQueue();
+
+// 创建通知队列
+const notificationQueue = queueFactory.createNotificationQueue();
+
+// 创建数据处理队列
+const dataQueue = queueFactory.createDataProcessingQueue();
+
+// 创建定时任务队列
+const scheduledQueue = queueFactory.createScheduledQueue();
+```
+
+### 方式二：使用队列管理器
 
 ```typescript
 import { QueueManager } from "../services/queue.service";
@@ -33,7 +56,7 @@ const emailQueue = queueManager.createQueue({
 });
 ```
 
-### 2. 注册处理器
+### 2. 注册处理器（仅在使用队列管理器时需要）
 
 ```typescript
 // 注册邮件发送处理器
@@ -79,7 +102,10 @@ const jobId3 = await emailQueue.addJob({
 ### 4. 开始处理
 
 ```typescript
-// 开始处理队列
+// 使用队列工厂时，处理器已自动注册，直接启动即可
+await queueFactory.startAllQueues();
+
+// 或单独启动某个队列
 await emailQueue.startProcessing("sendEmail");
 
 // 停止处理
@@ -212,6 +238,90 @@ async getStats(): Promise<{
 }>
 ```
 
+### QueueFactory
+
+队列工厂，提供预配置的队列创建方法，支持邮件、短信、通知等常用队列类型。
+
+#### getInstance()
+
+获取单例实例。
+
+```typescript
+static getInstance(): QueueFactory
+```
+
+#### createEmailQueue()
+
+创建邮件队列，自动配置邮件发送处理器。
+
+```typescript
+createEmailQueue(): QueueService
+```
+
+#### createSMSQueue()
+
+创建短信队列，自动配置短信发送处理器。
+
+```typescript
+createSMSQueue(): QueueService
+```
+
+#### createNotificationQueue()
+
+创建通知队列，自动配置通知发送处理器。
+
+```typescript
+createNotificationQueue(): QueueService
+```
+
+#### createDataProcessingQueue()
+
+创建数据处理队列，自动配置数据处理处理器。
+
+```typescript
+createDataProcessingQueue(): QueueService
+```
+
+#### createScheduledQueue()
+
+创建定时任务队列，自动配置定时任务处理器。
+
+```typescript
+createScheduledQueue(): QueueService
+```
+
+#### createCustomQueue(name, options?)
+
+创建自定义队列。
+
+```typescript
+createCustomQueue(name: string, options?: Partial<QueueOptions>): QueueService
+```
+
+#### startAllQueues()
+
+启动所有队列。
+
+```typescript
+async startAllQueues(): Promise<void>
+```
+
+#### stopAllQueues()
+
+停止所有队列。
+
+```typescript
+async stopAllQueues(): Promise<void>
+```
+
+#### getAllStats()
+
+获取所有队列统计信息。
+
+```typescript
+async getAllStats(): Promise<Record<string, any>>
+```
+
 ### QueueManager
 
 队列管理器，提供统一的队列管理接口。
@@ -269,34 +379,9 @@ async getAllStats(): Promise<Record<string, any>>
 ### 1. 邮件发送队列
 
 ```typescript
-// 创建邮件队列
-const emailQueue = queueManager.createQueue({
-  name: "email",
-  maxAttempts: 3,
-  concurrency: 5
-});
-
-// 注册邮件处理器
-emailQueue.registerProcessor("sendEmail", async (job) => {
-  const { to, subject, content, template } = job.data;
-  
-  try {
-    await emailService.send({
-      to,
-      subject,
-      content,
-      template
-    });
-  } catch (error) {
-    // 记录失败原因
-    logger().error({
-      event: "emailSendFailed",
-      error: error.message,
-      data: { to, subject }
-    });
-    throw error; // 触发重试
-  }
-});
+// 使用队列工厂创建邮件队列
+const queueFactory = QueueFactory.getInstance();
+const emailQueue = queueFactory.createEmailQueue();
 
 // 添加邮件任务
 await emailQueue.addJob({
@@ -309,8 +394,103 @@ await emailQueue.addJob({
   metadata: { orderId: "12345" }
 });
 
-// 开始处理
-await emailQueue.startProcessing("sendEmail");
+// 添加批量邮件任务
+const emailJobs = [
+  {
+    to: "user1@example.com",
+    subject: "欢迎注册",
+    content: "感谢您注册我们的平台！"
+  },
+  {
+    to: "user2@example.com",
+    subject: "密码重置",
+    content: "您的密码重置链接：https://example.com/reset"
+  }
+];
+
+await emailQueue.addJobs(
+  emailJobs.map(email => ({ data: email }))
+);
+
+// 启动队列处理
+await queueFactory.startAllQueues();
+```
+
+### 2. 短信发送队列
+
+```typescript
+// 使用队列工厂创建短信队列
+const queueFactory = QueueFactory.getInstance();
+const smsQueue = queueFactory.createSMSQueue();
+
+// 添加验证码短信
+await smsQueue.addJob({
+  to: "13800138000",
+  content: "您的验证码是：123456，5分钟内有效。",
+  template: "verification_code"
+});
+
+// 添加紧急通知短信
+await smsQueue.addJob({
+  to: "13900139000",
+  content: "紧急通知：您的账户出现异常登录，请立即检查！",
+  priority: "urgent",
+  provider: "aliyun"
+}, {
+  priority: 10
+});
+
+// 批量发送短信
+const smsJobs = [
+  {
+    to: "13800138001",
+    content: "您的订单已发货，物流单号：SF1234567890"
+  },
+  {
+    to: "13800138002",
+    content: "您的账户余额不足，请及时充值"
+  }
+];
+
+await smsQueue.addJobs(
+  smsJobs.map(sms => ({ data: sms }))
+);
+```
+
+### 3. 通知推送队列
+
+```typescript
+// 使用队列工厂创建通知队列
+const queueFactory = QueueFactory.getInstance();
+const notificationQueue = queueFactory.createNotificationQueue();
+
+// 添加推送通知
+await notificationQueue.addJob({
+  userId: "user123",
+  type: "push",
+  title: "新消息",
+  content: "您有一条新的消息",
+  data: { messageId: "msg123" },
+  priority: "normal"
+});
+
+// 添加站内信
+await notificationQueue.addJob({
+  userId: ["user123", "user456"],
+  type: "in_app",
+  title: "系统维护通知",
+  content: "系统将于今晚22:00-24:00进行维护，期间可能影响正常使用。",
+  priority: "high"
+});
+
+// 添加Webhook通知
+await notificationQueue.addJob({
+  userId: "webhook_url",
+  type: "webhook",
+  title: "订单状态变更",
+  content: "订单状态已更新为已发货",
+  data: { orderId: "order123", status: "shipped" }
+});
 ```
 
 ### 2. 数据处理队列
