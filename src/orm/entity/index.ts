@@ -25,6 +25,14 @@ export class Account {
   })
   name: string;
 
+  @Column({ 
+    type: "varchar", 
+    length: 100, 
+    comment: "账户密码",
+    nullable: false 
+  })
+  pwd: string;
+
   @ManyToMany(() => Role, (role) => role.accounts, {
     cascade: true,
     eager: false

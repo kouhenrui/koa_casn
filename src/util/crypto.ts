@@ -8,6 +8,7 @@ import crypto from "crypto";
 import axios from "axios";
 import os from "os";
 import { ServerConfig } from "./env";
+import QRCode from "qrcode";
 const SALT_ROUNDS = 10;
 
 
@@ -76,18 +77,18 @@ const getSelfSalt = (length: number) => {
 //     return null;
 //   }
 // }
-const SECRET_KEY = process.env.JWT_SECRET! || getSelfSalt(16);
+const SECRET_KEY = ServerConfig.jwt.secret;
 /**
  * Generates a JSON Web Token (JWT) for a given payload.
  * @param payload - The data to include in the token.
  * @returns A signed JWT as a string.
  */
 
-function generateToken(payload: any) {
+async function generateToken(payload: any):Promise<{token:string,etime:number}> {
   let exp = new Date();
   exp.setTime(exp.getTime() + 24 * 60 * 60 * 1000);
   let etime = exp.getTime();
-  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "1d" }); // 可配置过期时间
+  const token = await jwt.sign(payload, SECRET_KEY, { expiresIn: "1d" }); // 可配置过期时间
   return { token, etime };
 }
 
@@ -405,6 +406,11 @@ async function getPublicIp(){
   }
 }
 
+async function generateQRCode(text:string){
+  const qr = await QRCode.toDataURL(text,{width:200,height:200});
+  return qr;
+}
+
 export {
   generateToken,
   verifyToken,
@@ -424,5 +430,6 @@ export {
   encryptRsa,
   decryptRsa,
   getLocalIp,
-  getPublicIp
+  getPublicIp,
+  generateQRCode,
 };

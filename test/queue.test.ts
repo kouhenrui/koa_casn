@@ -2,8 +2,8 @@ import { QueueManager, QueueService, QueueJob } from "../src/services/queue.serv
 import { logger } from "../src/util/log";
 
 describe("QueueService", () => {
-  let queueManager: QueueManager;
-  let testQueue: QueueService;
+//   let queueManager: QueueManager;
+//   let testQueue: QueueService;
 
 //   beforeEach(() => {
 //     queueManager = QueueManager.getInstance();

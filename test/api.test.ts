@@ -2,8 +2,8 @@
 import MWSService from "../src/meituan/api";
 
 describe('MWSService Tests', () => {
-    let authorization:string;
-    let accessToken:string;
+//     let authorization:string;
+//     let accessToken:string;
     // it("return 房东常量信息", async () => {
     //   const accessToken = "40FCA90D065748DCA3B6BFA0B493AE07";
     //   const res = await MWSService.getConstantsMWS(accessToken);
