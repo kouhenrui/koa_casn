@@ -31,7 +31,7 @@ interface LogConfig {
 
 // 默认日志配置
 const defaultLogConfig: LogConfig = {
-  level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'development' ? 'debug' : 'info'),
+  level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'development' ?'info':'debug' ),
   enableConsole: process.env.LOG_ENABLE_CONSOLE !== 'false',
   enableFile: process.env.LOG_ENABLE_FILE === 'true',
   enableErrorFile: process.env.LOG_ENABLE_ERROR_FILE !== 'false',
@@ -98,7 +98,7 @@ class LoggerManager {
 
   // 生成请求ID
   public generateRequestId(): string {
-    return `${Date.now()}-${++this.requestIdGenerator}`;
+    return `${this.loggerId}-${Date.now()}-${++this.requestIdGenerator}`;
   }
 
   // 处理日志体，添加请求ID和敏感信息过滤
@@ -135,11 +135,6 @@ class LoggerManager {
   public async debug(body: logBody, requestId?: string): Promise<void> {
     const logData = this.processLogBody(body, requestId);
     this.winstonLogger.debug(logData);
-  }
-
-  public async fatal(body: logBody, requestId?: string): Promise<void> {
-    const logData = this.processLogBody(body, requestId);
-    this.winstonLogger.log('fatal', logData);
   }
 
   // 请求日志
@@ -195,8 +190,4 @@ export const logError = (event: string, message?: string, data?: Record<string, 
 
 export const logDebug = (event: string, message?: string, data?: Record<string, any>, requestId?: string) => {
   logger().debug({ event, message, data }, requestId);
-};
-
-export const logFatal = (event: string, message?: string, data?: Record<string, any>, requestId?: string) => {
-  logger().fatal({ event, message, data }, requestId);
 };

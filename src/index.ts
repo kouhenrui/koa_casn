@@ -8,7 +8,7 @@ import { responseFormatter } from "./middleware/response.middleware";
 import { LoggerMiddleware } from "./middleware/logger.middleware";
 import { errorHandler } from "./middleware/error.middleware";
 import { initRedis } from "./util/redis";
-import { initLogger, logger, logInfo } from "./util/log";
+import { initLogger, logDebug, logError,  logger, logInfo, logWarn } from "./util/log";
 import { CasbinService } from "./util/casbin";
 import { ServerConfig, logEnvLoaded } from "./util/env";
 import { initPg } from "./util/orm";
@@ -110,14 +110,6 @@ const startServer = async () => {
   const port = ServerConfig.PORT;
   const localIp = getLocalIp();
   const publicIp = await getPublicIp();
-  // 调试模式下的启动信息
-  if (ServerConfig.NODE_ENV === 'development') {
-    logger().info({
-      event: "debugMode",
-      message: `Starting server in development mode on port ${port}`,
-    });
-  }
-  
   
   const server = app.listen(port, () => {
     // 立即打印本地和局域网地址
@@ -125,8 +117,6 @@ const startServer = async () => {
       event: "serverStarted",
       message: `server running at - Local: http://localhost:${port} 🚀 - LAN: http://${localIp}:${port} 🚀  - Public: http://${publicIp}:${port} 🚀`,
     });
-    
- 
   });
 
   // 服务器错误处理

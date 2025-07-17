@@ -5,7 +5,6 @@ import {
   logWarn, 
   logError, 
   logDebug, 
-  logFatal,
 } from '../util/log';
 
 // =============== 日志系统使用示例 ===============
@@ -17,7 +16,6 @@ export const basicLoggingExample = async (ctx: Context) => {
   logWarn('security', '检测到异常登录尝试', { ip: ctx.ip, userAgent: ctx.headers['user-agent'] });
   logError('database', '数据库连接失败', { operation: 'query', table: 'users' });
   logDebug('debug', '调试信息', { requestBody: ctx.request.body });
-  logFatal('system', '系统严重错误', { component: 'auth', error: 'critical failure' });
 
   // 使用logger实例
   const log = logger();
