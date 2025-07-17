@@ -1,0 +1,202 @@
+# Kubernetes 应用部署配置 - 开发环境
+apiVersion: apps/v1                    # API版本，使用apps/v1                   # 资源类型：部署
+metadata:                              # 元数据
+  name: koa-casn-app                  # 部署名称
+  labels:                              # 标签
+    app: koa-casn-app                 # 应用标识
+    version: dev                      # 版本标识
+    environment: development          # 环境标识
+spec:                                 # 部署规格
+  replicas: 2                         # 副本数量
+  strategy:                           # 更新策略
+    type: RollingUpdate              # 滚动更新类型
+    rollingUpdate:                   # 滚动更新配置
+      maxSurge: 1                    # 最大超出副本数
+      maxUnavailable:0              # 最大不可用副本数
+  selector:                          # 选择器
+    matchLabels:                     # 匹配标签
+      app: koa-casn-app             # 匹配应用标签
+  template:                          # Pod模板
+    metadata:                        # Pod元数据
+      labels:                        # Pod标签
+        app: koa-casn-app           # 应用标识
+        version: dev                # 版本标识
+        environment: development    # 环境标识
+    spec:                           # Pod规格
+      containers:                   # 容器列表
+        - name: app                 # 容器名称
+          image: koa-casn:dev       # 镜像名称和标签
+          imagePullPolicy: IfNotPresent  # 镜像拉取策略：本地存在则不拉取
+          ports:                    # 端口配置
+            - name: http            # 端口名称
+              containerPort: 3000   # 容器端口
+              protocol: TCP         # 协议类型
+          env:                      # 环境变量
+            - name: NODE_ENV        # Node.js环境
+              value: development    # 开发环境
+            - name: PORT            # 应用端口
+              value: "3000" # 端口号
+            - name: LOG_LEVEL       # 日志级别
+              value: "info"         # 信息级别
+            - name: LOG_FORMAT      # 日志格式
+              value: "json"         # JSON格式
+          envFrom:                  # 从ConfigMap获取环境变量
+            - configMapRef:         # ConfigMap引用
+                name: app-config    # ConfigMap名称
+          volumeMounts:             # 卷挂载
+            - name: app-logs        # 日志卷
+              mountPath: /app/logs  # 挂载路径
+            - name: app-temp        # 临时文件卷
+              mountPath: /app/temp  # 挂载路径
+          resources:                # 资源限制
+            limits:                 # 资源上限
+              cpu: "1"          # CPU限制：1核
+              memory: 1Gi        # 内存限制：1GB
+            requests:               # 资源请求
+              cpu: "500m"           # CPU请求：0.5
+              memory: "512Mi"      # 内存请求：512MB
+          livenessProbe:            # 存活探针
+            httpGet:                # HTTP GET检查
+              path: /health         # 健康检查路径
+              port: 300            # 检查端口
+              httpHeaders:          # HTTP头
+                - name: User-Agent  # 用户代理
+                  value: kube-probe/1.0  # 探针标识
+            initialDelaySeconds: 30 # 初始延迟：30秒
+            periodSeconds: 10       # 检查周期：10秒
+            timeoutSeconds: 5       # 超时时间：5秒
+            failureThreshold: 3     # 失败阈值：3次
+            successThreshold: 1     # 成功阈值：1次
+          # readinessProbe:           # 就绪探针
+          #   httpGet:                # HTTP GET检查
+          #     path: /ready          # 就绪检查路径
+          #     port: 300            # 检查端口
+          #     httpHeaders:          # HTTP头
+          #       - name: User-Agent  # 用户代理
+          #         value: kube-probe/1.0  # 探针标识
+          #   initialDelaySeconds: 5  # 初始延迟：5秒
+          #   periodSeconds: 5        # 检查周期：5秒
+          #   timeoutSeconds: 3       # 超时时间：3秒
+          #   failureThreshold: 3     # 失败阈值：3次
+          #   successThreshold: 1     # 成功阈值：1次
+          # securityContext:          # 安全上下文
+          #   runAsNonRoot: true      # 非root用户运行
+          #   runAsUser:100           # 用户ID
+          #   runAsGroup: 100         # 组ID
+          #   allowPrivilegeEscalation: false  # 禁止权限提升
+          #   readOnlyRootFilesystem: false    # 根文件系统可写
+          #   capabilities:           # 能力配置
+          #     drop:                 # 删除能力
+          #       - ALL               # 删除所有能力
+          # lifecycle:                # 生命周期钩子
+          #   preStop:                # 停止前钩子
+          #     exec:                 # 执行命令
+          #       command:            # 命令
+          #         - /bin/sh         # Shell路径
+          #         - -c              # 执行选项
+          #         - sleep 10     # 休眠10                   # 卷定义
+        - name: app-logs            # 日志卷名称
+          emptyDir: {}              # 空目录卷
+        - name: app-temp            # 临时文件卷名称
+          emptyDir: {}              # 空目录卷
+      securityContext:              # Pod安全上下文
+        fsGroup: 1000              # 文件系统组ID
+      restartPolicy: Always         # 重启策略：总是重启
+---
+# 应用服务配置
+apiVersion: v1                       # API版本
+kind: Service                        # 资源类型：服务
+metadata:                            # 元数据
+  name: koa-casn-service            # 服务名称
+  labels:                            # 标签
+    app: koa-casn-app               # 应用标识
+spec:                               # 服务规格
+  type: NodePort                    # 服务类型：节点端口
+  selector:                         # 选择器
+    app: koa-casn-app              # 匹配应用标签
+  ports:                            # 端口配置
+    - name: http                    # 端口名称
+      protocol: TCP                 # 协议类型
+      port: 80                      # 服务端口
+      targetPort: 3000              # 目标端口
+      nodePort: 30080              # 节点端口
+# ---
+# # 应用配置映射
+# apiVersion: v1                      # API版本
+# kind: ConfigMap                     # 资源类型：配置映射
+# metadata:                           # 元数据
+#   name: app-config                  # 配置映射名称
+#   labels:                           # 标签
+#     app: koa-casn-app              # 应用标识
+# data:                              # 配置数据
+#   LOG_LEVEL: "info"                # 日志级别
+#   LOG_FORMAT: "json"              # 日志格式
+#   CORS_ORIGIN: "*"                 # CORS源
+#   RATE_LIMIT_WINDOW: "900"        # 限流窗口（秒）
+#   RATE_LIMIT_MAX: "100"           # 限流最大值
+#   QUEUE_CONCURRENCY: "5"           # 队列并发数
+#   QUEUE_RETRY_DELAY: "500"        # 队列重试延迟（毫秒）
+#   JWT_SECRET: "your-jwt-secret"    # JWT密钥
+#   SESSION_SECRET: "your-session-secret" # 会话密钥
+# ---
+# # 入口配置（Ingress）
+# apiVersion: networking.k8s.io/v1   # API版本
+# kind: Ingress                      # 资源类型：入口
+# metadata:                          # 元数据
+#   name: koa-casn-ingress           # 入口名称
+#   labels:                          # 标签
+#     app: koa-casn-app             # 应用标识
+#   annotations:                     # 注解
+#     nginx.ingress.kubernetes.io/rewrite-target: /  # 重写目标
+#     nginx.ingress.kubernetes.io/ssl-redirect:false"  # 禁用SSL重定向
+#     nginx.ingress.kubernetes.io/rate-limit: 100      # 限流配置
+#     nginx.ingress.kubernetes.io/rate-limit-window: 1m                   # 入口规格
+#   rules:                          # 规则列表
+#     - host: koa-casn.local        # 主机名
+#       http:                       # HTTP配置
+#         paths:                    # 路径列表
+#           - path: /               # 路径
+#             pathType: Prefix      # 路径类型：前缀
+#             backend:              # 后端服务
+#               service:            # 服务配置
+#                 name: koa-casn-service  # 服务名称
+#                 port:             # 端口配置
+#                   number: 80      # 端口号
+# ---
+# # 水平Pod自动扩缩器（HPA）
+# apiVersion: autoscaling/v2      # API版本
+# kind: HorizontalPodAutoscaler     # 资源类型：水平Pod自动扩缩器
+# metadata:                          # 元数据
+#   name: koa-casn-hpa               # HPA名称
+#   labels:                          # 标签
+#     app: koa-casn-app             # 应用标识
+# spec:                             # HPA规格
+#   scaleTargetRef:                  # 扩缩目标引用
+#     apiVersion: apps/v1           # API版本
+#     kind: Deployment              # 资源类型：部署
+#     name: koa-casn-app           # 部署名称
+#   minReplicas: 2                 # 最小副本数
+#   maxReplicas: 10                 # 最大副本数
+#   metrics:                        # 扩缩指标
+#     - type: Resource              # 资源类型指标
+#       resource:                   # 资源指标
+#         name: cpu                 # CPU指标
+#         target:                   # 目标配置
+#           type: Utilization       # 利用率类型
+#           averageUtilization: 70 # 平均利用率：70%
+#     - type: Resource              # 资源类型指标
+#       resource:                   # 资源指标
+#         name: memory              # 内存指标
+#         target:                   # 目标配置
+#           type: Utilization       # 利用率类型
+#           averageUtilization:80利用率：80%
+#   behavior:                       # 扩缩行为
+#     scaleUp:                      # 扩容行为
+#       stabilizationWindowSeconds: 60  # 稳定窗口：60                   # 策略列表
+#         - type: Percent           # 百分比类型
+#           value: 100             # 百分比值：100%
+#           periodSeconds:15      # 周期：15                   # 缩容行为
+#       stabilizationWindowSeconds:300 # 稳定窗口：300                   # 策略列表
+#         - type: Percent           # 百分比类型
+#           value: 10             # 百分比值：10%
+#           periodSeconds:60

@@ -1,0 +1,17 @@
+version: '3.8'
+#单机容器管理
+#直接运行该文件:docker-compose -f docker-compose.dev.yaml up --build
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - .env.development:/app/.env:ro
+    environment:
+      - NODE_ENV=development
+    command: pm2-runtime start src/index.ts --watch --interpreter ts-node

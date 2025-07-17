@@ -1,0 +1,45 @@
+# 开发环境 Dockerfile - 多阶段构建优化版本
+# 第一阶段：依赖安装和构建
+FROM node:20-alpine3.19.1 AS builder
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制包管理文件
+COPY package*.json ./
+COPY pnpm-lock.yaml ./
+
+# 安装 pnpm（如果使用）
+RUN npm install -g pnpm
+
+# 安装依赖
+RUN pnpm install 
+
+# 复制源代码
+COPY . .
+# 第二阶段：运行环境
+FROM node:20-alpine3.19.1
+
+# 设置工作目录
+WORKDIR /app
+
+# 安装 PM2要的系统工具
+RUN npm install -g pm2 
+# 复制整个项目
+COPY --from=builder /app /app  
+
+# 复制包管理文件
+COPY package*.json ./
+COPY pnpm-lock.yaml ./
+
+
+# 仅安装生产依赖
+RUN pnpm install 
+
+# 设置环境变量
+ENV NODE_ENV=development 
+# 暴露端口
+EXPOSE 30000
+
+# 启动应用
+CMD ["pm2-runtime", "start", "src/index.ts", "--watch", "--interpreter", "ts-node"]
