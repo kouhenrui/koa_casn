@@ -31,7 +31,7 @@ export async function responseFormatter(ctx: Context, next: Next) {
       code: 200,
       data: ctx.body,
       message: "success",
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toLocaleString(),
     };
     
     logger().info({

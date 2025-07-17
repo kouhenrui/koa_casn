@@ -108,11 +108,25 @@ const startServer = async () => {
  // await primaryCluser() 多线程模式
   // await initializeServices();
   const port = ServerConfig.PORT;
-  const server = app.listen(port, async() => {
+  const localIp = getLocalIp();
+  const publicIp = await getPublicIp();
+  // 调试模式下的启动信息
+  if (ServerConfig.NODE_ENV === 'development') {
+    logger().info({
+      event: "debugMode",
+      message: `Starting server in development mode on port ${port}`,
+    });
+  }
+  
+  
+  const server = app.listen(port, () => {
+    // 立即打印本地和局域网地址
     logger().info({
       event: "serverStarted",
-      message: `server running at - Local: http://localhost:${port} 🚀 - LAN: http://${getLocalIp()}:${port} 🚀 - Public: http://${await getPublicIp()}:${port} 🚀`,
+      message: `server running at - Local: http://localhost:${port} 🚀 - LAN: http://${localIp}:${port} 🚀  - Public: http://${publicIp}:${port} 🚀`,
     });
+    
+ 
   });
 
   // 服务器错误处理

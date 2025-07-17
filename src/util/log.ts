@@ -31,7 +31,7 @@ interface LogConfig {
 
 // 默认日志配置
 const defaultLogConfig: LogConfig = {
-  level: process.env.LOG_LEVEL || 'info',
+  level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'development' ? 'debug' : 'info'),
   enableConsole: process.env.LOG_ENABLE_CONSOLE !== 'false',
   enableFile: process.env.LOG_ENABLE_FILE === 'true',
   enableErrorFile: process.env.LOG_ENABLE_ERROR_FILE !== 'false',
