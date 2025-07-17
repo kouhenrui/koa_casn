@@ -2,7 +2,8 @@ import { Context, Next } from "koa";
 import { logger } from "../util/log";
 import { plainToInstance } from "class-transformer";
 import { validate } from "class-validator";
-import { ValidateParamsError } from "../util/error";
+import { ValidationError } from "../util/error";
+// import { ValidateParamsError } from "../util/error";
 export const LoggerMiddleware = async (ctx: Context, next: Next) => {
   const body = ctx.request.body;
   logger().info({
@@ -33,7 +34,7 @@ export const ValidationMiddleware = (DtoClass: any) => {
         event: "参数校验失败",
         message: JSON.stringify(hasError),
       });
-      throw new ValidateParamsError(
+      throw new ValidationError(
         JSON.stringify(hasError),
         Error(errors.toString())
       );

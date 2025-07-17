@@ -7,6 +7,7 @@ import AESSimple from "../meituan/aesCrypto";
 import { CasbinService } from "../util/casbin";
 import permissionRouter from "./permission";
 import queueRouter from "./queue";
+import errorDemoRouter from "./error-demo.route";
 const router = new Router();
 
 router.post('/test/casbin', casbinMiddleware(), async(ctx) => {
@@ -20,6 +21,10 @@ router.use(permissionRouter.allowedMethods());
 // 注册队列管理路由
 router.use(queueRouter.routes());
 router.use(queueRouter.allowedMethods());
+
+// 注册错误处理演示路由
+router.use(errorDemoRouter.routes());
+router.use(errorDemoRouter.allowedMethods());
 router.get('/initData',async (ctx)=>{
   const res = await accountService.initData()
   ctx.body = res
@@ -71,5 +76,12 @@ router.get('/test/i18n',async(ctx)=>{
      throw error;
    }
   ctx.body = "success";
+})
+
+router.get('/health',async(ctx)=>{
+  logger().info({
+    event:'健康检查'
+  })
+  ctx.body='success'
 })
 export default router;

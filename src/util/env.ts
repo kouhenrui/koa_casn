@@ -1,6 +1,4 @@
-import * as dotenv from "dotenv";
 import { config as loadDotenv } from "dotenv";
-import { logger } from "./log";
 import { resolve } from "path";
 
 // 获取环境变量
@@ -8,14 +6,20 @@ const env = process.env.NODE_ENV || "development";
 
 // 加载对应的 .env 文件
 const envPath = resolve(__dirname, `../../.env`);
-loadDotenv({ path: envPath });
+loadDotenv({ path: envPath, debug: false });
 
-logger().info({
-  event: `加载的配置环境`,message:`${env}`,
-});
-dotenv.config({
-  debug:false
-});
+// 延迟日志记录，等待日志系统初始化完成
+let envLoaded = false;
+export const logEnvLoaded = () => {
+  if (!envLoaded) {
+    const { logger } = require("./log");
+    logger().info({
+      event: `加载的配置环境`,
+      message: `${env}`,
+    });
+    envLoaded = true;
+  }
+};
 export const ServerConfig = {
   // Redis
   redis: {

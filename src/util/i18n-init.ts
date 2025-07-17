@@ -12,7 +12,7 @@ export const defaultI18nConfig: I18nConfig = {
   fallbackLocale: 'en-US',
   
   // 支持的语言列表
-  locales: ['zh-CN', 'zh-TW', 'en-US', 'ja-JP', 'ko-KR'],
+  locales: ['zh-CN', 'en-US'],
   
   // 语言配置
   localeConfigs: defaultLocaleConfigs,

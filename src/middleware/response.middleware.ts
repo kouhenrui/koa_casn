@@ -1,83 +1,62 @@
 import { Context, Next } from "koa";
-import {
-  CustomError,
-  FireError,
-  ForbiddenError,
-  ManyRequestError,
-  UnauthorizedError,
-  ValidateParamsError,
-} from "../util/error";
 import { logger } from "../util/log";
+
+/**
+ * 响应格式化中间件
+ * 只处理成功响应的格式化，错误处理由 error.middleware.ts 负责
+ */
 export async function responseFormatter(ctx: Context, next: Next) {
-  try {
-    await next();
-    // 是否跳过格式化（导出文件等场景）
-    const skip = ctx.state.skipFormat || Buffer.isBuffer(ctx.body);
-    if (!skip) {
-      // 如果已经有响应体，自动包装成统一格式
-      if (ctx.body !== undefined && ctx.status === 200) {
-        ctx.body = {
-          code: 0,
-          message: "success",
-          data: ctx.body,
-          success: true,
-          status:0
-        };
-      } else {
-        logger().warn({
-          event: "请求路由异常状态码捕捉",
-          message: String(ctx.status),
-        });
-        ctx.status = ctx.status;
-        ctx.body = {
-          code: -1,
-          message: "请求异常,请检查后重试",
-          data: null,
-          success: false,
-        };
-      }
-      logger().info({
-        event: "响应日志",
-        message: "success",
-      });
-    }
-  } catch (err: any) {
-    if (err instanceof CustomError) {
-      logger().warn({ event: "全局非系统错误捕捉日志输出", error: err });
-      // 捕获自定义错误，返回200状态并封装错误信息
-      ctx.status = 200;
-      ctx.body = {
-        code: err.status || -1,
-        message: `${err.message}` || "Custom error occurred",
-        data: null,
-        success: false,
-      };
-    } else if (
-      err instanceof UnauthorizedError ||
-      err instanceof ManyRequestError ||
-      err instanceof ForbiddenError ||
-      err instanceof ValidateParamsError ||
-      err instanceof FireError
-    ) {
-      logger().warn({ event: "全局非系统错误捕捉日志输出", error: err });
-      // 捕获自定义错误，返回200状态并封装错误信息
-      ctx.status = err.status;
-      ctx.body = {
-        code: err.status || -1,
-        message: `${err.message}` || "Unauthorized error occurred",
-        data: null,
-        success: false,
-      };
-    } else {
-      logger().error({ event: "全局系统错误捕捉日志输出", error: err });
-      // 系统错误，设置真实的HTTP状态码
-      ctx.status = err.status || 500;
-      ctx.body = {
-        code: -1,
-        message: err.message || "Internal Server Error",
-        data: null,
-        success: false,
-      };
-    }
+  await next();
+  
+  // 跳过格式化的情况
+  const skip = ctx.state.skipFormat || 
+               Buffer.isBuffer(ctx.body) || 
+               ctx.body === null || 
+               ctx.body === undefined;
+               
+  if (skip) {
+    return;
   }
+  
+  // 只处理成功响应（状态码200）的格式化
+  if (ctx.status === 200 && ctx.body !== undefined) {
+    // 如果响应体已经是标准格式，则不重复包装
+    if (isStandardResponse(ctx.body)) {
+      return;
+    }
+    
+    // 包装成统一格式
+    ctx.body = {
+      success: true,
+      code: 200,
+      data: ctx.body,
+      message: "success",
+      timestamp: new Date().toISOString()
+    };
+    
+    logger().info({
+      event: "response",
+      message: `响应格式化完成 - ${ctx.method} ${ctx.url} (${ctx.status})`
+    });
+  }
+}
+
+/**
+ * 判断响应体是否已经是标准格式
+ */
+function isStandardResponse(body: any): boolean {
+  return body && 
+         typeof body === 'object' && 
+         (body.success !== undefined || body.code !== undefined);
+}
+
+/**
+ * 跳过响应格式化的装饰器
+ * 用于文件下载等不需要格式化的场景
+ */
+export function skipResponseFormat() {
+  return async (ctx: Context, next: Next) => {
+    ctx.state.skipFormat = true;
+    await next();
+  };
 }
